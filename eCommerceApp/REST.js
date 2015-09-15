@@ -41,24 +41,39 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
         ];
         var pattern = /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/;
         var email = req.query.email;
-        if(req.query.state.length!=2 || !email.match(pattern) || req.query.zip.length!=5) {
-        	console.log("validation error!")
-     		errorFlag = 1;
-        	res.json({
-        		// "Error" : true, 
-        		"Message" : "There was a problem with your registration!"});
+        if(
+            (req.query.state!=null && req.query.state.length!=2) 
+            || (req.query.state!=null && req.query.email==null) 
+            || (req.query.zip!=null && (req.query.zip.length!=5 || isNaN(req.query.zip)))){
+            console.log("validation error!")
+            errorFlag = 1;
+            res.json({
+                "Message" : "There was a problem with your registration!"
+            });
         }
+
+        /*if(req.query.state==null || req.query.email==null || req.query.zip==null
+            || req.query.state==null || req.query.email==null || req.query.zip==null
+            || req.query.fName==null || req.query.lName==null || req.query.username==null || req.query.password==null) {
+            res.json({
+                // "Error" : true, 
+                "Message" : "There was a problem with your registration!"
+            });        
+        }*/
+
         else {
 	        query = mysql.format(query,table);
 	        connection.query(query,function(err,rows){
 	            if(err) {
 	                res.json({
 	                	// "Error" : true, 
-	                	"Message" : "Database connection error!"});
+	                	"Message" : "There was a problem with your registration!"
+                    });
 	            } else {
 	                res.json({
 	                	// "Error" : false, 
-	                	"Message" : "Your account has been registered!"});
+	                	"Message" : "Your account has been registered!"
+                    });
 	            }
 	        });
     	}
@@ -82,7 +97,7 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
         		"sessionID" : ""
         	});
         }
-        else {
+        else if(req.query.username.length>0 || req.query.password.length>0){
 	        query = mysql.format(query,table);
 	        connection.query(query,function(err,rows){
 	        	console.log(query);
@@ -100,25 +115,43 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
        			 	});
 	            }
 	            else if(rows.length>0){
-	                sess = req.session;
+	                var menuMess="";
                     req.session.username=req.query.username;
                     req.session.userType=rows[0].type;
+                    console.log(req.session.userType);
+                    console.log(rows[0].type);
+                    console.log(rows);
+                    if(req.session.userType=="customer")
+                            menuMess = "UpdateContactInformation, View Products, Logout";
+                    else if(req.session.userType=="admin")
+                            menuMess = "UpdateContactInformation, View Users, Modify products, View Products, Logout";
+                    
+                    sess = req.session;
                     res.json({
 	                	"errMessage" : "", 
-        				"menu" : "UpdateContactInformation, Logout, View Products",
+        				"menu" : menuMess,
         				"sessionID" : req.sessionID
        			 	});
 	            }
 	        });
     	}
+        else {
+            res.json({
+                        "errMessage" : "That username and password combination was not correct", 
+                        "menu" : "",
+                        "sessionID" : ""
+                    });
+        }
     });
 
     //Logout
-    router.get("/logout",function(req,res){
+    router.post("/logout",function(req,res){
         var mess;
         if(req.session.username) {
             console.log("session exists!!!!!");
             mess = "You have been logged out";
+            req.session.username=null;
+            req.session.userType=null;
             req.session.destroy();
         }
         else
@@ -130,39 +163,49 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
 
     //updateInfo
     router.post("/updateInfo",function(req,res){
-        var mess;
-        var querypart="";
-        if(req.query.fName!=null && req.query.fName.length > 0)
-            querypart+=",fname='"+req.query.fName+"' "
-        if(req.query.lName!=null && req.query.lName.length > 0)
-            querypart+=",lname='"+req.query.lName+"' " 
-        if(req.query.address!=null && req.query.address.length > 0)
-            querypart+=",address='"+req.query.address+"' " 
-        if(req.query.city!=null && req.query.city.length > 0)
-            querypart+=",city='"+req.query.city+"' "
-        if(req.query.state!=null && req.query.state.length == 2)
-            querypart+=",state='"+req.query.state+"' "
-        if(req.query.zip!=null && req.query.zip.length == 5)
-            querypart+=",zip='"+req.query.zip+"' "
-        if(req.query.email!=null && req.query.email.length > 0 && req.query.email.match("/^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/"))
-            querypart+=",email='"+req.query.email+"' "
-        if(req.query.uName!=null && req.query.uName.length > 0)
-            querypart+=",username='"+req.query.uName+"' "
-        if(req.query.pWord!=null && req.query.pWord.length > 0)
-            querypart+=",password='"+req.query.pWord+"' "
-        var query = "UPDATE userdetail set userid=userid "+querypart+" WHERE username='"+req.session.username+"'";
-        connection.query(query,function(err,rows){
-            console.log(query);
-            if(err)
-                res.json({
-                    "message":"There was a problem with this action!"       
-                });
-            else
-                res.json({
-                    "message":"The product information has been updated!"       
-                });
-        });
-        
+        if(req.session.username!=null && req.query.sessionID!=null && req.query.sessionID!="") {
+            var mess;
+            var querypart="";
+            if(req.query.fName!=null && req.query.fName.length > 0)
+                querypart+=",fname='"+req.query.fName+"' "
+            if(req.query.lName!=null && req.query.lName.length > 0)
+                querypart+=",lname='"+req.query.lName+"' " 
+            if(req.query.address!=null && req.query.address.length > 0)
+                querypart+=",address='"+req.query.address+"' " 
+            if(req.query.city!=null && req.query.city.length > 0)
+                querypart+=",city='"+req.query.city+"' "
+            if(req.query.state!=null && req.query.state.length == 2)
+                querypart+=",state='"+req.query.state+"' "
+            if(req.query.zip!=null && req.query.zip.length == 5)
+                querypart+=",zip='"+req.query.zip+"' "
+            if(req.query.email!=null && req.query.email.length > 0 && req.query.email.match("/^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/"))
+                querypart+=",email='"+req.query.email+"' "
+            if(req.query.uName!=null && req.query.uName.length > 0)
+                querypart+=",username='"+req.query.uName+"' "
+            if(req.query.pWord!=null && req.query.pWord.length > 0)
+                querypart+=",password='"+req.query.pWord+"' "
+            var query = "UPDATE userdetail set userid=userid "+querypart+" WHERE username='"+req.session.username+"'";
+            connection.query(query,function(err,rows){
+                console.log(query);
+                if(err)
+                    res.json({
+                        "message":"There was a problem with this action!"       
+                    });
+                else
+                    res.json({
+                        "message":"The product information has been updated!"       
+                    });
+            });
+        }
+        else if(req.session.username == null)
+            res.json({
+                        "message":"Please log in!"       
+            });
+        else if(req.query.sessionID == null || req.query.sessionID == "")
+            res.json({
+                        "message":"There was a problem with this action!"       
+            });    
+
     });
 
     //modifyProduct
@@ -222,9 +265,9 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
                 }
             });
     	}
-        else
+        else if(req.session.userType==null)
             res.json({
-                        "message":"There was a problem with this action!"       
+                        "message":"Please login!"       
             });
     });
 
