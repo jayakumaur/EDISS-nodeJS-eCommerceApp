@@ -227,7 +227,7 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
         }
         else {
             res.json({
-                        "message":"There was a problem with this action!"       
+                        "message":"Login as admin!"       
             });
         }
     });
@@ -235,15 +235,21 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
 	router.get("/viewUsers",function(req,res){
         if(req.session.userType=="admin") {
             // var query = "SELECT username, concat(fName,lName) as Name FROM ?? WHERE ?? LIKE ? AND ?? LIKE ?";
-            var query = "SELECT * FROM ?? WHERE ?? LIKE ? AND ?? LIKE ?";
-            var table = [
-    	        "userdetail",
-    	        "fName",
-    	        "%"+req.query.fName+"%",
-    	        "lName",
-    	        "%"+req.query.lName+"%"
-            ];
-            query = mysql.format(query,table);
+            var query = "SELECT * FROM userdetail WHERE 1=1"
+            var queryPart="";
+            if(req.query.fName!=null)
+                queryPart+=" AND fName LIKE '%"+req.query.fName+"%'";
+            if(req.query.lName!=null)
+                queryPart+=" AND lName LIKE '%"+req.query.lName+"%'";
+            query+=queryPart;
+            // var table = [
+    	       //  "userdetail",
+    	       //  "fName",
+    	       //  "%"+req.query.fName+"%",
+    	       //  "lName",
+    	       //  "%"+req.query.lName+"%"
+            // ];
+            // query = mysql.format(query,table);
             connection.query(query,function(err,rows){
             	console.log(query);
                 if(err) {
@@ -265,6 +271,10 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
                 }
             });
     	}
+        else if(req.session.userType=="customer")
+            res.json({
+                        "message":"Please login as admin!"       
+            });
         else if(req.session.userType==null)
             res.json({
                         "message":"Please login!"       
@@ -273,7 +283,13 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
 
     //View Products
 	router.get("/getProducts",function(req,res){
-    	var query = "SELECT distinct p.* FROM product p INNER JOIN product_category_mapping c ON p.product_id = c.product_id WHERE p.product_id = "+req.query.productId+" OR category LIKE '"+req.query.category+"' OR (title LIKE '"+req.query.keyword+"' OR description LIKE '"+req.query.keyword+"')";
+    	var query = "SELECT distinct p.* FROM product p INNER JOIN product_category_mapping c ON p.product_id = c.product_id WHERE 1=1";
+        var queryPart="";
+        if(req.query.productId!=null)
+            queryPart+=" AND p.product_id ="+req.query.productId;
+        if(req.query.keyword!=null)
+            queryPart+=" AND (title LIKE '%"+req.query.productTitle+"%' OR description LIKE '%"+req.query.productTitle+"%')";
+        query+=queryPart;
         connection.query(query,function(err,rows){
         	console.log(query);
             if(err) {
