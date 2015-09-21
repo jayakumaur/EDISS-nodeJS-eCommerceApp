@@ -9,7 +9,7 @@ var app  = express();
 var sess=null;
 
 app.use(cookieParser());
-app.use(session({secret:'somesecrettokenhere'}));
+app.use(session({secret:'somesecrettoken'}));
 
 function REST(){
     var self = this;
@@ -39,6 +39,7 @@ REST.prototype.configureExpress = function(connection) {
       var self = this;
       app.use(bodyParser.urlencoded({ extended: true }));
       app.use(bodyParser.json());
+
       var router = express.Router();
       app.use('/api', router);
       var rest_router = new rest(router,connection,md5);

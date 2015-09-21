@@ -4,6 +4,7 @@ function REST_ROUTER(router,connection,md5) {
     var self = this;
     self.handleRoutes(router,connection,md5);
 }
+var username;
 
 REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
 	var errorMess;
@@ -81,23 +82,40 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
 
 	//Login page
     router.post("/login",function(req,res){
-	var query = "SELECT * FROM ?? WHERE ?? = ? AND ?? = ?";
+        // if(req.body.username)
+        // res.json({
+        //     "text":"hey!!",
+        //     "messbody":req.body.username,
+        // })
+        username = req.body.username;
+        var password = req.body.password;
+        console.log(password)
+        var query = "SELECT * FROM ?? WHERE ?? = ? AND ?? = ?";
         var table = [
 	        "userdetail",
 	        "username",
-	        req.query.username,
+	        username,
 	        "password",
-	        req.query.password
+	        password
         ];
-        if(req.query.username.length==0 || req.query.password.length==0) {
+        if(username==null || password==null) { //either of the username/poassword paramters have not been sent
+            console.log("Absence of login credentials!")
+            res.json({
+                "errMessage" : "Provide username and password paramters!", 
+                "menu" : "",
+                "sessionID" : ""
+            });
+        }
+        if(username.length==0 || password.length==0) { //either username/password values are blank
         	console.log("login error!")
         	res.json({
-        		"errMessage" : "Enter both username and password", 
+        		"errMessage" : "Provide values for both the username and password paramters", 
         		"menu" : "",
         		"sessionID" : ""
         	});
         }
-        else if(req.query.username.length>0 || req.query.password.length>0){
+        else if(username.length>0 || password.length>0){ 
+            //some paramter values have been passed for username and password
 	        query = mysql.format(query,table);
 	        connection.query(query,function(err,rows){
 	        	console.log(query);
@@ -116,9 +134,9 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
 	            }
 	            else if(rows.length>0){
 	                var menuMess="";
-                    req.session.username=req.query.username;
+                    req.session.username=username;
                     req.session.userType=rows[0].type;
-                    console.log(req.session.userType);
+                    // console.log(req.session.userType);
                     console.log(rows[0].type);
                     console.log(rows);
                     if(req.session.userType=="customer")
@@ -126,7 +144,7 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
                     else if(req.session.userType=="admin")
                             menuMess = "UpdateContactInformation, View Users, Modify products, View Products, Logout";
                     
-                    sess = req.session;
+                    // sess = req.session;
                     res.json({
 	                	"errMessage" : "", 
         				"menu" : menuMess,
@@ -135,7 +153,7 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
 	            }
 	        });
     	}
-        else {
+        else {//incorrect username password combination
             res.json({
                         "errMessage" : "That username and password combination was not correct", 
                         "menu" : "",
@@ -147,18 +165,23 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
     //Logout
     router.post("/logout",function(req,res){
         var mess;
-        if(req.session.username) {
+        psessionID = req.body.sessionID;
+
+        if(psessionID == req.sessionID) {
             console.log("session exists!!!!!");
             mess = "You have been logged out";
             req.session.username=null;
+            req.session.sessionID=null;
             req.session.userType=null;
             req.session.destroy();
         }
         else
             mess = "You are not currently logged in!";
+    
         res.json({
             "message":mess       
         });
+        
     });
 
     //updateInfo
@@ -199,11 +222,11 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
         }
         else if(req.session.username == null)
             res.json({
-                        "message":"Please log in!"       
+                "message":"Please log in!"       
             });
         else if(req.query.sessionID == null || req.query.sessionID == "")
             res.json({
-                        "message":"There was a problem with this action!"       
+                "message":"There was a problem with this action!"       
             });    
 
     });
