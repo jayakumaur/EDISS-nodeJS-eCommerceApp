@@ -122,7 +122,6 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
 	            if(err) {
 	            	// console.log(query);
 	                res.json({
-	                	// "Error" : true, 
 	                	"Message" : "Database connection error!"
 	                });
 	            } else if(rows.length==0){
@@ -186,27 +185,36 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
 
     //updateInfo
     router.post("/updateInfo",function(req,res){
-        if(req.session.username!=null && req.query.sessionID!=null && req.query.sessionID!="") {
+        if(req.session.username == null)
+            res.json({
+                "message":"Please log in!"       
+            });
+        else if(req.body.sessionID == null || req.body.sessionID == "")
+            res.json({
+                "message":"There was a problem with this action!"       
+            });
+        else if(req.session.username!=null && req.body.sessionID!=null && req.body.sessionID!="") {
             var mess;
+            var pattern = new RegExp(/^[+a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/i);
             var querypart="";
-            if(req.query.fName!=null && req.query.fName.length > 0)
-                querypart+=",fname='"+req.query.fName+"' "
-            if(req.query.lName!=null && req.query.lName.length > 0)
-                querypart+=",lname='"+req.query.lName+"' " 
-            if(req.query.address!=null && req.query.address.length > 0)
-                querypart+=",address='"+req.query.address+"' " 
-            if(req.query.city!=null && req.query.city.length > 0)
-                querypart+=",city='"+req.query.city+"' "
-            if(req.query.state!=null && req.query.state.length == 2)
-                querypart+=",state='"+req.query.state+"' "
-            if(req.query.zip!=null && req.query.zip.length == 5)
-                querypart+=",zip='"+req.query.zip+"' "
-            if(req.query.email!=null && req.query.email.length > 0 && req.query.email.match("/^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/"))
-                querypart+=",email='"+req.query.email+"' "
-            if(req.query.uName!=null && req.query.uName.length > 0)
-                querypart+=",username='"+req.query.uName+"' "
-            if(req.query.pWord!=null && req.query.pWord.length > 0)
-                querypart+=",password='"+req.query.pWord+"' "
+            if(req.body.fName!=null && req.body.fName.length > 0)
+                querypart+=",fname='"+req.body.fName+"' "
+            if(req.body.lName!=null && req.body.lName.length > 0)
+                querypart+=",lname='"+req.body.lName+"' " 
+            if(req.body.address!=null && req.body.address.length > 0)
+                querypart+=",address='"+req.body.address+"' " 
+            if(req.body.city!=null && req.body.city.length > 0)
+                querypart+=",city='"+req.body.city+"' "
+            if(req.body.state!=null && req.body.state.length == 2)
+                querypart+=",state='"+req.body.state+"' "
+            if(req.body.zip!=null && req.body.zip.length == 5)
+                querypart+=",zip='"+req.body.zip+"' "
+            if(req.body.email!=null && req.body.email.length > 0 && pattern.test(req.body.email))
+                querypart+=",email='"+req.body.email+"' "
+            if(req.body.uName!=null && req.body.uName.length > 0)
+                querypart+=",username='"+req.body.uName+"' "
+            if(req.body.pWord!=null && req.body.pWord.length > 0)
+                querypart+=",password='"+req.body.pWord+"' "
             var query = "UPDATE userdetail set userid=userid "+querypart+" WHERE username='"+req.session.username+"'";
             connection.query(query,function(err,rows){
                 console.log(query);
@@ -219,16 +227,7 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
                         "message":"The product information has been updated!"       
                     });
             });
-        }
-        else if(req.session.username == null)
-            res.json({
-                "message":"Please log in!"       
-            });
-        else if(req.query.sessionID == null || req.query.sessionID == "")
-            res.json({
-                "message":"There was a problem with this action!"       
-            });    
-
+        }   
     });
 
     //modifyProduct
