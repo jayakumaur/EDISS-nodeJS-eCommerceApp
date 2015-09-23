@@ -185,17 +185,25 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
 
     //updateInfo
     router.post("/updateInfo",function(req,res){
+        var pattern = new RegExp(/^[+a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/i);
+        // console.log(isNaN(req.body.zip));
         if(req.session.username == null)
             res.json({
-                "message":"Please log in!"       
+                "message":"Please log in"       
             });
-        else if(req.body.sessionID == null || req.body.sessionID == "")
+        else if(
+                req.body.sessionID == null || 
+                req.body.sessionID == "" || 
+                (req.body.state!=null && req.body.state.length != 2) ||
+                (req.body.zip!=null && (isNaN(req.body.zip) || req.body.zip.length != 5)) ||
+                (req.body.email!=null && (req.body.email.length == 0 || !pattern.test(req.body.email)))
+            ) {
             res.json({
-                "message":"There was a problem with this action!"       
+                "message":"There was a problem with this action"       
             });
+        }   
         else if(req.session.username!=null && req.body.sessionID!=null && req.body.sessionID!="") {
             var mess;
-            var pattern = new RegExp(/^[+a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/i);
             var querypart="";
             if(req.body.fName!=null && req.body.fName.length > 0)
                 querypart+=",fname='"+req.body.fName+"' "
@@ -220,11 +228,11 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
                 console.log(query);
                 if(err)
                     res.json({
-                        "message":"There was a problem with this action!"       
+                        "message":"There was a problem with this action"       
                     });
                 else
                     res.json({
-                        "message":"The product information has been updated!"       
+                        "message":"The user information has been updated"       
                     });
             });
         }   
@@ -234,7 +242,7 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
     router.post("/modifyProduct",function(req,res){
         var mess;
         if(req.session.userType=="admin") {
-            var query = "UPDATE product set title= '"+req.query.productTitle+"', description ='"+req.query.productDescription+"' WHERE product_id='"+req.query.productId+"'";
+            var query = "UPDATE product set title= '"+req.body.productTitle+"', description ='"+req.body.productDescription+"' WHERE product_id='"+req.body.productId+"'";
             connection.query(query,function(err,rows){
                 console.log(query);
                 if(err)
