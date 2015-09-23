@@ -28,34 +28,34 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
 	        "email",
 	        "username",
 	        "password",
-	        req.query.fname,
-	        req.query.lname,
-	        req.query.address,
-	        req.query.city,
-	        req.query.state,
-	        req.query.zip,
-	        req.query.email,
-	        req.query.username,
-	        // md5(req.query.password),
-	        req.query.password
-	        // req.query.type
+	        req.body.fname,
+	        req.body.lname,
+	        req.body.address,
+	        req.body.city,
+	        req.body.state,
+	        req.body.zip,
+	        req.body.email,
+	        req.body.username,
+	        // md5(req.body.password),
+	        req.body.password
+	        // req.body.type
         ];
         var pattern = /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/;
-        var email = req.query.email;
+        var email = req.body.email;
         if(
-            (req.query.state!=null && req.query.state.length!=2) 
-            || (req.query.state!=null && req.query.email==null) 
-            || (req.query.zip!=null && (req.query.zip.length!=5 || isNaN(req.query.zip)))){
-            console.log("validation error!")
-            errorFlag = 1;
+            (req.body.state!=null && req.body.state.length!=2) 
+            || (req.body.state!=null && req.body.email==null) 
+            || (req.body.zip!=null && (req.body.zip.length!=5 || isNaN(req.body.zip)))){
+            // console.log("validation error!")
+            // errorFlag = 1;
             res.json({
-                "Message" : "There was a problem with your registration!"
+                "Message" : "there was a problem with your registration"
             });
         }
 
-        /*if(req.query.state==null || req.query.email==null || req.query.zip==null
-            || req.query.state==null || req.query.email==null || req.query.zip==null
-            || req.query.fName==null || req.query.lName==null || req.query.username==null || req.query.password==null) {
+        /*if(req.body.state==null || req.body.email==null || req.body.zip==null
+            || req.body.state==null || req.body.email==null || req.body.zip==null
+            || req.body.fName==null || req.body.lName==null || req.body.username==null || req.body.password==null) {
             res.json({
                 // "Error" : true, 
                 "Message" : "There was a problem with your registration!"
@@ -68,12 +68,12 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
 	            if(err) {
 	                res.json({
 	                	// "Error" : true, 
-	                	"Message" : "There was a problem with your registration!"
+	                	"Message" : "there was a problem with your registration"
                     });
 	            } else {
 	                res.json({
 	                	// "Error" : false, 
-	                	"Message" : "Your account has been registered!"
+	                	"Message" : "Your account has been registered"
                     });
 	            }
 	        });
@@ -82,11 +82,6 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
 
 	//Login page
     router.post("/login",function(req,res){
-        // if(req.body.username)
-        // res.json({
-        //     "text":"hey!!",
-        //     "messbody":req.body.username,
-        // })
         username = req.body.username;
         var password = req.body.password;
         console.log(password)
@@ -101,7 +96,7 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
         if(username==null || password==null) { //either of the username/poassword paramters have not been sent
             console.log("Absence of login credentials!")
             res.json({
-                "errMessage" : "Provide username and password paramters!", 
+                "errMessage" : "Provide username and password parameters!", 
                 "menu" : "",
                 "sessionID" : ""
             });
@@ -109,7 +104,7 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
         if(username.length==0 || password.length==0) { //either username/password values are blank
         	console.log("login error!")
         	res.json({
-        		"errMessage" : "Provide values for both the username and password paramters", 
+        		"errMessage" : "Provide values for both the username and password parameters", 
         		"menu" : "",
         		"sessionID" : ""
         	});
@@ -165,8 +160,9 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
     router.post("/logout",function(req,res){
         var mess;
         psessionID = req.body.sessionID;
-
-        if(psessionID == req.sessionID) {
+        if(psessionID==null)
+            mess="Provide sessionID value"
+        else if(psessionID == req.sessionID) {
             console.log("session exists!!!!!");
             mess = "You have been logged out";
             req.session.username=null;
@@ -242,22 +238,28 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
     router.post("/modifyProduct",function(req,res){
         var mess;
         if(req.session.userType=="admin") {
-            var query = "UPDATE product set title= '"+req.body.productTitle+"', description ='"+req.body.productDescription+"' WHERE product_id='"+req.body.productId+"'";
-            connection.query(query,function(err,rows){
-                console.log(query);
-                if(err)
-                    res.json({
-                        "message":"There was a problem with this action!"       
-                    });
-                else
-                    res.json({
-                        "message":"The product information has been updated!"       
-                    });
-            }); 
+            if(req.body.productId == null || req.body.productDescription == null || req.body.productTitle == null)
+                res.json({
+                        "message":"Provide product parameters"       
+                });
+            else {
+                var query = "UPDATE product set title= '"+req.body.productTitle+"', description ='"+req.body.productDescription+"' WHERE product_id='"+req.body.productId+"'";
+                connection.query(query,function(err,rows){
+                    console.log(query);
+                    if(err)
+                        res.json({
+                            "message":"There was a problem with this action"       
+                        });
+                    else
+                        res.json({
+                            "message":"The product information has been updated"       
+                        });
+                });
+            } 
         }
         else {
             res.json({
-                        "message":"Login as admin!"       
+                        "message":"Login as admin"       
             });
         }
     });

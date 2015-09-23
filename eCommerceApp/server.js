@@ -42,6 +42,15 @@ REST.prototype.configureExpress = function(connection) {
 
       var router = express.Router();
       app.use('/api', router);
+      // Handle 404
+      app.use(function(req, res) {
+         res.send('HTTP 404: Page not Found \n Please contact the administrator!', 404);
+      });
+      
+      // Handle 500
+      app.use(function(error, req, res, next) {
+         res.send('HTTP 500: Internal Server Error\n Please contact the administrator!', 500);
+      });
       var rest_router = new rest(router,connection,md5);
       self.startServer();
 }
