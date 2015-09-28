@@ -44,7 +44,7 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
         var email = req.body.email;
         if(
             (req.body.state!=null && req.body.state.length!=2) 
-            || (req.body.state!=null && req.body.email==null) 
+            || (req.body.email!=null && (req.body.email.length = 0 || !pattern.test(req.body.email))) 
             || (req.body.zip!=null && (req.body.zip.length!=5 || isNaN(req.body.zip)))){
             // console.log("validation error!")
             // errorFlag = 1;
