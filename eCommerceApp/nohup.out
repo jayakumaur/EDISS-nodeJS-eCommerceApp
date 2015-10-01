@@ -1,0 +1,111 @@
+Sat, 26 Sep 2015 15:46:49 GMT express-session deprecated undefined resave option; provide resave option at server.js:12:9
+Sat, 26 Sep 2015 15:46:49 GMT express-session deprecated undefined saveUninitialized option; provide saveUninitialized option at server.js:12:9
+All right ! I am alive at Port 8081.
+Sat, 26 Sep 2015 15:47:04 GMT express-session deprecated undefined resave option; provide resave option at server.js:12:9
+Sat, 26 Sep 2015 15:47:04 GMT express-session deprecated undefined saveUninitialized option; provide saveUninitialized option at server.js:12:9
+All right ! I am alive at Port 8081.
+bucktoo
+SELECT * FROM `userdetail` WHERE `username` = 'tbucktoo' AND `password` = 'bucktoo'
+customer
+[ { userid: null,
+    fname: null,
+    lname: 'Mr. Bucktoo',
+    address: null,
+    city: null,
+    state: null,
+    zip: null,
+    email: null,
+    username: 'tbucktoo',
+    password: 'bucktoo',
+    type: 'customer' } ]
+session exists!!!!!
+bucktoo
+SELECT * FROM `userdetail` WHERE `username` = 'tbucktoo' AND `password` = 'bucktoo'
+customer
+[ { userid: null,
+    fname: null,
+    lname: 'Mr. Bucktoo',
+    address: null,
+    city: null,
+    state: null,
+    zip: null,
+    email: null,
+    username: 'tbucktoo',
+    password: 'bucktoo',
+    type: 'customer' } ]
+session exists!!!!!
+SELECT distinct p.* FROM product p INNER JOIN product_category_mapping c ON p.product_id = c.product_id WHERE 1=1
+Sat, 26 Sep 2015 15:59:53 GMT express deprecated res.send(body, status): Use res.status(status).send(body) instead at server.js:47:14
+undefined
+Absence of login credentials!
+Sat, 26 Sep 2015 16:17:32 GMT express deprecated res.send(body, status): Use res.status(status).send(body) instead at server.js:52:14
+Error: Can't set headers after they are sent.
+    at ServerResponse.OutgoingMessage.setHeader (_http_outgoing.js:335:11)
+    at ServerResponse.header (/home/ec2-user/EDISS-nodeJS-eCommerceApp/eCommerceApp/node_modules/express/lib/response.js:700:10)
+    at ServerResponse.send (/home/ec2-user/EDISS-nodeJS-eCommerceApp/eCommerceApp/node_modules/express/lib/response.js:154:12)
+    at /home/ec2-user/EDISS-nodeJS-eCommerceApp/eCommerceApp/server.js:52:14
+    at Layer.handle_error (/home/ec2-user/EDISS-nodeJS-eCommerceApp/eCommerceApp/node_modules/express/lib/router/layer.js:58:5)
+    at trim_prefix (/home/ec2-user/EDISS-nodeJS-eCommerceApp/eCommerceApp/node_modules/express/lib/router/index.js:300:13)
+    at /home/ec2-user/EDISS-nodeJS-eCommerceApp/eCommerceApp/node_modules/express/lib/router/index.js:270:7
+    at Function.proto.process_params (/home/ec2-user/EDISS-nodeJS-eCommerceApp/eCommerceApp/node_modules/express/lib/router/index.js:321:12)
+    at next (/home/ec2-user/EDISS-nodeJS-eCommerceApp/eCommerceApp/node_modules/express/lib/router/index.js:261:10)
+    at Layer.handle_error (/home/ec2-user/EDISS-nodeJS-eCommerceApp/eCommerceApp/node_modules/express/lib/router/layer.js:54:12)
+smith
+SELECT * FROM `userdetail` WHERE `username` = 'hsmith' AND `password` = 'smith'
+customer
+[ { userid: null,
+    fname: null,
+    lname: null,
+    address: null,
+    city: null,
+    state: null,
+    zip: null,
+    email: null,
+    username: 'hsmith',
+    password: 'smith',
+    type: 'customer' } ]
+session exists!!!!!
+smith
+SELECT * FROM `userdetail` WHERE `username` = 'hsmith' AND `password` = 'smith'
+customer
+[ { userid: null,
+    fname: null,
+    lname: null,
+    address: null,
+    city: null,
+    state: null,
+    zip: null,
+    email: null,
+    username: 'hsmith',
+    password: 'smith',
+    type: 'customer' } ]
+UPDATE userdetail set userid=userid ,fname='Fred' ,lname='Flinstone'  WHERE username='hsmith'
+admin
+SELECT * FROM `userdetail` WHERE `username` = 'jadmin' AND `password` = 'admin'
+admin
+[ { userid: null,
+    fname: 'gjgjgj',
+    lname: 'rr',
+    address: null,
+    city: null,
+    state: null,
+    zip: '12345',
+    email: null,
+    username: 'jadmin',
+    password: 'admin',
+    type: 'admin' } ]
+SELECT * FROM userdetail WHERE 1=1
+smith
+SELECT * FROM `userdetail` WHERE `username` = 'hsmith' AND `password` = 'smith'
+customer
+[ { userid: null,
+    fname: 'Fred',
+    lname: 'Flinstone',
+    address: null,
+    city: null,
+    state: null,
+    zip: null,
+    email: null,
+    username: 'hsmith',
+    password: 'smith',
+    type: 'customer' } ]
