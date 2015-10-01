@@ -160,9 +160,9 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
     router.post("/logout",function(req,res){
         var mess;
         psessionID = req.body.sessionID;
-        if(psessionID==null)
-            mess="Provide sessionID value"
-        else if(psessionID == req.sessionID) {
+        // if(psessionID==null)
+        //     mess="Provide sessionID value"
+        if(psessionID == req.sessionID) {
             console.log("session exists!!!!!");
             mess = "You have been logged out";
             req.session.username=null;
@@ -188,8 +188,8 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
                 "message":"Please log in"       
             });
         else if(
-                req.body.sessionID == null || 
-                req.body.sessionID == "" || 
+                // req.body.sessionID == null || 
+                // req.body.sessionID == "" || 
                 (req.body.state!=null && req.body.state.length != 2) ||
                 (req.body.zip!=null && (isNaN(req.body.zip) || req.body.zip.length != 5)) ||
                 (req.body.email!=null && (req.body.email.length == 0 || !pattern.test(req.body.email)))
@@ -201,10 +201,10 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
         else if(req.session.username!=null && req.body.sessionID!=null && req.body.sessionID!="") {
             var mess;
             var querypart="";
-            if(req.body.fName!=null && req.body.fName.length > 0)
-                querypart+=",fname='"+req.body.fName+"' "
-            if(req.body.lName!=null && req.body.lName.length > 0)
-                querypart+=",lname='"+req.body.lName+"' " 
+            if(req.body.fname!=null && req.body.fname.length > 0)
+                querypart+=",fname='"+req.body.fname+"' "
+            if(req.body.lname!=null && req.body.lname.length > 0)
+                querypart+=",lname='"+req.body.lname+"' " 
             if(req.body.address!=null && req.body.address.length > 0)
                 querypart+=",address='"+req.body.address+"' " 
             if(req.body.city!=null && req.body.city.length > 0)
@@ -215,10 +215,10 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
                 querypart+=",zip='"+req.body.zip+"' "
             if(req.body.email!=null && req.body.email.length > 0 && pattern.test(req.body.email))
                 querypart+=",email='"+req.body.email+"' "
-            if(req.body.uName!=null && req.body.uName.length > 0)
-                querypart+=",username='"+req.body.uName+"' "
-            if(req.body.pWord!=null && req.body.pWord.length > 0)
-                querypart+=",password='"+req.body.pWord+"' "
+            if(req.body.username!=null && req.body.username.length > 0)
+                querypart+=",username='"+req.body.username+"' "
+            if(req.body.password!=null && req.body.password.length > 0)
+                querypart+=",password='"+req.body.password+"' "
             var query = "UPDATE userdetail set userid=userid "+querypart+" WHERE username='"+req.session.username+"'";
             connection.query(query,function(err,rows){
                 console.log(query);
@@ -266,20 +266,20 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
 	//View users
 	router.get("/viewUsers",function(req,res){
         if(req.session.userType=="admin") {
-            // var query = "SELECT username, concat(fName,lName) as Name FROM ?? WHERE ?? LIKE ? AND ?? LIKE ?";
+            // var query = "SELECT username, concat(fname,lname) as Name FROM ?? WHERE ?? LIKE ? AND ?? LIKE ?";
             var query = "SELECT * FROM userdetail WHERE 1=1"
             var queryPart="";
-            if(req.query.fName!=null)
-                queryPart+=" AND fName LIKE '%"+req.query.fName+"%'";
-            if(req.query.lName!=null)
-                queryPart+=" AND lName LIKE '%"+req.query.lName+"%'";
+            if(req.query.fname!=null)
+                queryPart+=" AND fname LIKE '%"+req.query.fname+"%'";
+            if(req.query.lname!=null)
+                queryPart+=" AND lname LIKE '%"+req.query.lname+"%'";
             query+=queryPart;
             // var table = [
     	       //  "userdetail",
-    	       //  "fName",
-    	       //  "%"+req.query.fName+"%",
-    	       //  "lName",
-    	       //  "%"+req.query.lName+"%"
+    	       //  "fname",
+    	       //  "%"+req.query.fname+"%",
+    	       //  "lname",
+    	       //  "%"+req.query.lname+"%"
             // ];
             // query = mysql.format(query,table);
             connection.query(query,function(err,rows){
