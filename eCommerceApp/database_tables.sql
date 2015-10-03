@@ -31,3 +31,13 @@ create table product
 );
 
 select distinct p.product_id,title from product p inner join product_category_mapping c on p.product_id = c.product_id where category like '%Ages 4-8%';
+
+create table session
+(
+	user_session_id int not null auto_increment primary key,
+	username varchar(100),
+	IP varchar(100),
+	session_id varchar(100),
+	isLoggedIn bit,
+	foreign key (username) references userdetail(username)
+);
