@@ -38,6 +38,5 @@ create table session
 	username varchar(100),
 	IP varchar(100),
 	session_id varchar(100),
-	isLoggedIn bit,
-	foreign key (username) references userdetail(username)
+	isLoggedIn bit
 );

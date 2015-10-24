@@ -16,6 +16,7 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
 
     //Users Page - Registration
     router.post("/registerUser",function(req,res){
+        console.log("-------->REGISTER!");
         var query = "INSERT INTO ??(??,??,??,??,??,??,??,??,??) VALUES (?,?,?,?,?,?,?,?,?)";
         var table = [
 	        "userdetail",
@@ -63,29 +64,47 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
         }*/
 
         else {
-	        query = mysql.format(query,table);
-	        connection.query(query,function(err,rows){
-	            if(err) {
-	                res.json({
-	                	// "Error" : true, 
-	                	"Message" : "there was a problem with your registration"
+	        var uniqueCheckQuery = "select 1 from userdetail where ((username='"+req.body.username+"' and password = '"+req.body.password+"') or (fname='"+req.body.fname+"' and lname = '"+req.body.lname+"'))";
+            console.log(uniqueCheckQuery);
+            connection.query(uniqueCheckQuery,function(uniqueCheckErr,uniqueCheckRows){
+                if(uniqueCheckErr)
+                    res.json({
+                        // "Error" : true, 
+                        "Message" : "there was a problem with your registration"
                     });
-	            } else {
-	                res.json({
-	                	// "Error" : false, 
-	                	"Message" : "Your account has been registered"
+                else if(uniqueCheckRows.length==0){
+                    query = mysql.format(query,table);
+                    console.log(query);
+                    connection.query(query,function(err,rows){
+                        if(err) {
+                            res.json({
+                                // "Error" : true, 
+                                "Message" : "there was a problem with your registration"
+                            });
+                        } else {
+                            res.json({
+                                // "Error" : false, 
+                                "Message" : "Your account has been registered "
+                            });
+                        }
                     });
-	            }
-	        });
+                }
+                else {
+                    res.json({
+                        "Message" : "there was a problem with your registration"
+                    });
+                } 
+            });
     	}
     });
 
 	//Login page
     router.post("/login",function(req,res){
+        console.log("-------->LOGIN!");
         username = req.body.username;
         var password = req.body.password;
         var userType = null;
-        console.log(password)
+        // console.log("password is.."+password);
         var query = "SELECT * FROM ?? WHERE ?? = ? AND ?? = ?";
         var table = [
 	        "userdetail",
@@ -136,9 +155,9 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
                     console.log(rows[0].type);
                     console.log(rows);
                     if(userType=="customer")
-                            menuMess = "UpdateContactInformation, View Products, Logout";
+                            menuMess = "//updateInfo, //getProducts, //logout";
                     else if(userType=="admin")
-                            menuMess = "UpdateContactInformation, View Users, Modify products, View Products, Logout";
+                            menuMess = "//updateInfo, //viewUsers, //modifyProducts, //getProducts, //logout";
                     
                     //clearing previous logins of the same IP
                     var clearQuery="update session set isLoggedIn = 0 where ip ='"+req.connection.remoteAddress+"' and isLoggedIn = 1";
@@ -176,6 +195,7 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
 
     //Logout
     router.post("/logout",function(req,res){
+        console.log("-------->LOGOUT!");
         var mess;
         var ip = req.connection.remoteAddress;
         var sessionID = req.sessionID;
@@ -211,6 +231,7 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
     }
     //updateInfo
     router.post("/updateInfo",function(req,res){
+        console.log("-------->UPDATEINFO!");
         var pattern = new RegExp(/^[+a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/i);
         var selQuery = "select u.type,s.* from session s inner join userdetail u on s.username = u.username where s.isLoggedIn=1 and s.ip='"+req.connection.remoteAddress+"'"
         var activeUser=null;
@@ -220,7 +241,11 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
             // console.log(selRows[0].username);
             if(err)
                 console.log("Error in getting active user from DB!");
-            else {
+            else if(selRows.length==0)
+                res.json({
+                        "message":"Please log in"+activeUser
+                    });
+            else{
                 activeUser = selRows[0].username;
                 if(activeUser == null)
                     res.json({
@@ -266,7 +291,7 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
                             });
                         else
                             res.json({
-                                "message":"The user information has been updated"       
+                                "message":"Your information has been updated"       
                             });
                     });
                 }
@@ -276,6 +301,7 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
 
     //modifyProduct
     router.post("/modifyProduct",function(req,res){
+        console.log("-------->MODIFYPRODUCT!");
         var mess;
                 var selQuery = "select u.type,s.* from session s inner join userdetail u on s.username = u.username where s.isLoggedIn=1 and s.ip='"+req.connection.remoteAddress+"'"
         var activeUser=null;
@@ -321,6 +347,7 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
     });
 	//View users
 	router.get("/viewUsers",function(req,res){
+        console.log("-------->VIEW USER!");
         var selQuery = "select u.type,s.* from session s inner join userdetail u on s.username = u.username where s.isLoggedIn=1 and s.ip='"+req.connection.remoteAddress+"'"
         var activeUser=null;
         // console.log(selQuery);
@@ -336,7 +363,7 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
                                 "message":"Please login!"       
                     });
                 else if(activeUser.type=="admin") {
-                    var query = "SELECT * FROM userdetail WHERE 1=1"
+                    var query = "SELECT fname, lname FROM userdetail WHERE 1=1"
                     var queryPart="";
                     if(req.query.fname!=null)
                         queryPart+=" AND fname LIKE '%"+req.query.fname+"%'";
@@ -374,7 +401,8 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
 
     //View Products
 	router.get("/getProducts",function(req,res){
-    	var query = "SELECT distinct p.* FROM product p INNER JOIN product_category_mapping c ON p.product_id = c.product_id WHERE 1=1";
+        console.log("-------->GET PRODUCT!");
+    	var query = "SELECT distinct p.title FROM product p INNER JOIN product_category_mapping c ON p.product_id = c.product_id WHERE 1=1";
         var queryPart="";
         if(req.query.productId!=null)
             queryPart+=" AND p.product_id ="+req.query.productId;

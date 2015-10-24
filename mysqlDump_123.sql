@@ -204,7 +204,7 @@ DROP TABLE IF EXISTS `userdetail`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `userdetail` (
-  `userid` int(11) DEFAULT NULL,
+  `userid` int(11) NOT NULL AUTO_INCREMENT,
   `fname` varchar(100) DEFAULT NULL,
   `lname` varchar(100) DEFAULT NULL,
   `address` varchar(100) DEFAULT NULL,
@@ -215,7 +215,7 @@ CREATE TABLE `userdetail` (
   `username` varchar(100) NOT NULL,
   `password` varchar(100) DEFAULT NULL,
   `type` varchar(100) DEFAULT 'customer',
-  PRIMARY KEY (`username`)
+  PRIMARY KEY (`userid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
