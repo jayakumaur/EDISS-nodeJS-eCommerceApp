@@ -12,13 +12,13 @@
     </TestPlan>
     <hashTree>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="JDBC Test" enabled="true">
-        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <stringProp name="ThreadGroup.on_sample_error">startnextloop</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
-          <stringProp name="LoopController.loops">1</stringProp>
+          <stringProp name="LoopController.loops">4</stringProp>
         </elementProp>
-        <stringProp name="ThreadGroup.num_threads">8000</stringProp>
-        <stringProp name="ThreadGroup.ramp_time">2</stringProp>
+        <stringProp name="ThreadGroup.num_threads">1000</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">10</stringProp>
         <longProp name="ThreadGroup.start_time">1445623901000</longProp>
         <longProp name="ThreadGroup.end_time">1445623901000</longProp>
         <boolProp name="ThreadGroup.scheduler">false</boolProp>
@@ -27,8 +27,8 @@
       </ThreadGroup>
       <hashTree>
         <JDBCDataSource guiclass="TestBeanGUI" testclass="JDBCDataSource" testname="JDBC Connection Configuration" enabled="true">
-          <stringProp name="dataSource">product</stringProp>
-          <stringProp name="poolMax">100</stringProp>
+          <stringProp name="dataSource">var_config</stringProp>
+          <stringProp name="poolMax">35</stringProp>
           <stringProp name="timeout">10000</stringProp>
           <stringProp name="trimInterval">60000</stringProp>
           <boolProp name="autocommit">true</boolProp>
@@ -36,15 +36,15 @@
           <boolProp name="keepAlive">true</boolProp>
           <stringProp name="connectionAge">5000</stringProp>
           <stringProp name="checkQuery">Select 1</stringProp>
-          <stringProp name="dbUrl">jdbc:mysql://localhost:3306/dbUsers</stringProp>
+          <stringProp name="dbUrl">jdbc:mysql://localhost:3306/ediss</stringProp>
           <stringProp name="driver">com.mysql.jdbc.Driver</stringProp>
           <stringProp name="username">root</stringProp>
-          <stringProp name="password">root</stringProp>
+          <stringProp name="password">sairam</stringProp>
         </JDBCDataSource>
         <hashTree/>
-        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="Get product" enabled="true">
-          <stringProp name="dataSource">product</stringProp>
-          <stringProp name="query">select * from product where title like &quot;%daddies%&quot;;</stringProp>
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="JDBC Query - Get product" enabled="true">
+          <stringProp name="dataSource">var_config</stringProp>
+          <stringProp name="query">select * from product where title like &apos;%daddies%&apos;;</stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
           <stringProp name="queryTimeout"></stringProp>
@@ -54,8 +54,8 @@
           <stringProp name="variableNames"></stringProp>
         </JDBCSampler>
         <hashTree/>
-        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="Modify Product" enabled="true">
-          <stringProp name="dataSource">product</stringProp>
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="JDBC Query - Modify Product" enabled="true">
+          <stringProp name="dataSource">var_config</stringProp>
           <stringProp name="queryType">Update Statement</stringProp>
           <stringProp name="query">update product set description = &quot;Testing&quot; where product_id = 10;</stringProp>
           <stringProp name="queryArguments"></stringProp>
@@ -130,6 +130,7 @@
             </value>
           </objProp>
           <stringProp name="filename"></stringProp>
+          <boolProp name="useGroupName">true</boolProp>
         </ResultCollector>
         <hashTree/>
         <ResultCollector guiclass="StatGraphVisualizer" testclass="ResultCollector" testname="Aggregate Graph" enabled="true">

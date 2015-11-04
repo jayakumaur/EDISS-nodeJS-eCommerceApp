@@ -41,7 +41,7 @@ create table session
 	isLoggedIn bit
 );
 
-//for purchase order
+--for purchase order
 create table product_inventory 
 (
 	product_id int primary key, 
@@ -57,3 +57,9 @@ create table purchase_order
 	user_id int,
 	foreign key (product_id) references product(product_id)
 );
+
+select product_id as productId, sum(quantity_sold) as quantitySold
+from purchase_order
+group by product_id
+
+--ediss.czlcqq0ph8dm.us-east-1.rds.amazonaws.com
