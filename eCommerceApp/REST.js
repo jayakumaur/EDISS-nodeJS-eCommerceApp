@@ -345,7 +345,8 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
             }
         });
     });
-	//View users
+	
+    //View users
 	router.get("/viewUsers",function(req,res){
         console.log("-------->VIEW USER!");
         var selQuery = "select u.type,s.* from session s inner join userdetail u on s.username = u.username where s.isLoggedIn=1 and s.ip='"+req.connection.remoteAddress+"'"
@@ -399,6 +400,51 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
         });
     });
 
+    //View users
+    router.get("/getOrders",function(req,res){
+        console.log("-------->GET ORDERS!");
+        var selQuery = "select u.type,s.* from session s inner join userdetail u on s.username = u.username where s.isLoggedIn=1 and s.ip='"+req.connection.remoteAddress+"'"
+        var activeUser=null;
+        // console.log(selQuery);
+        connection.query(selQuery,function(err,selRows){
+            // console.log(selRows);
+            // console.log(selRows[0].username);
+            if(err)
+                console.log("Error in getting active user from DB!");
+            else {
+                activeUser = selRows[0];
+                if(activeUser==null)
+                    res.json({
+                                "message":"Please login!"       
+                    });
+                else if(activeUser.type=="admin") {
+                    var query = "select product_id as productId, sum(quantity_sold) as quantitySold from purchase_order group by product_id";
+                    connection.query(query,function(err,rows){
+                        console.log(query);
+                        if(err) {
+                            // console.log(query);
+                            res.json({
+                                // "Error" : true, 
+                                "errMessage" : "Database connection error!"
+                            });
+                        }
+                        else if(rows.length>0){
+                            var output = JSON.stringify(rows);
+                            res.json({
+                                "order_list":output,
+                                "message":"the request was successful"
+                            });
+                        }
+                    });
+                }
+                else if(activeUser.type=="customer")
+                    res.json({
+                        "message":"you need to log in as an admin prior to making the request"       
+                    });
+            }
+        });
+    });
+
     //View Products
 	router.get("/getProducts",function(req,res){
         console.log("-------->GET PRODUCT!");
@@ -431,7 +477,65 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
         });
     	// }
     });
-    
+
+    //Buy Products
+    router.post("/buyProduct",function(req,res){
+        console.log("-------->BUY PRODUCT!");
+        var mess;
+        mess = "error";
+        var ip = req.connection.remoteAddress;
+        var productId = req.body.productId;
+        var sessionID = req.sessionID;
+        var query = "select * from session where IP = '"+ip+"' and isLoggedIn = 1";
+        console.log(query);
+        connection.query(query,function(err,rows){
+            if(rows.length > 0) {
+                console.log("session exists!!!!!");
+                /////
+                var selQuery = "select 1 from product_inventory where quantity > 0 and product_id = "+productId;
+                console.log(selQuery);
+                connection.query(selQuery,function(selErr,selRows){
+                    if(selRows.length > 0) {
+                        console.log("product available!!");
+                        var updQuery = "update product_inventory set quantity = quantity - 1 where product_id = "+productId;
+                        //updating quanity value
+                        connection.query(updQuery,function(updErr,updRows){
+                            if(updErr) console.log("error updating quantity of product!");
+                            else { 
+                                console.log("quantity value updated!");
+                                var insQuery = "insert into purchase_order(product_id,quantity_sold,user_id) values ("+productId+",1,0)";
+                                console.log(insQuery);
+                                //creating order entry
+                                connection.query(insQuery,function(insErr,insRows){
+                                    if(updErr) console.log("error updating quantity of product!");
+                                    else { 
+                                        console.log("order value updated!");
+                                        mess =  "the purchase has been made successfully"
+                                        res.json({
+                                            "message":mess       
+                                        });
+                                    }
+                                });        
+                            }
+                        });
+                    }
+                    else {
+                        mess = "that product is out of stock";
+                        res.json({
+                            "message":mess       
+                        });
+                    }
+                });            
+                /////
+            }
+            else {
+                mess = "You need to login in prior to buying a product";
+                res.json({
+                    "message":mess       
+                });
+            }
+        });
+    });
 }
 
 module.exports = REST_ROUTER;
