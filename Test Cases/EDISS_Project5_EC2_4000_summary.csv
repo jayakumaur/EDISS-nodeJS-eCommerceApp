@@ -1,0 +1,9 @@
+Label,# Samples,Average,Min,Max,Std. Dev.,Error %,Throughput,KB/sec,Avg. Bytes
+Thread Group:User Login,4000,22582,170,100317,13048.57,0.00%,21.7,9.80,462.5
+Thread Group:Buy Product,4000,104906,461,157960,33609.21,78.42%,13.1,21.84,1702.2
+Thread Group:Update Contact Info,4000,89450,512,136348,21175.20,0.00%,10.9,3.89,366.6
+Thread Group:Modify Product,4000,70776,764,127616,16758.57,0.00%,9.2,3.35,373.6
+Thread Group:View Users,3941,72414,1656,167235,22023.68,0.03%,7.5,3.49,478.1
+Thread Group:Get Products,3802,49605,0,139582,24732.49,0.66%,6.4,2.37,376.9
+Thread Group:Get Orders,3778,35160,0,167279,27990.60,2.51%,6.2,2.77,460.7
+TOTAL,27521,63866,0,167279,36092.92,11.84%,44.5,26.31,606.0
