@@ -41,7 +41,7 @@ REST.prototype.configureExpress = function(connection) {
       app.use(bodyParser.json());
 
       var router = express.Router();
-      app.use('/api', router);
+      app.use('/', router);
       // Handle 404
       app.use(function(req, res) {
          res.send('HTTP 404: Page not Found \n Please contact the administrator!', 404);

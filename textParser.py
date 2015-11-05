@@ -1,6 +1,6 @@
-ifile = open('amz.txt')
-ofile = open('products1.txt',"w")
-cfile = open('categories1.txt',"w")
+ifile = open('amazon-meta.txt')
+ofile = open('products.txt',"w")
+cfile = open('categories.txt',"w")
 
 text = ""
 categoryText = ""

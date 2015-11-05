@@ -38,6 +38,28 @@ create table session
 	username varchar(100),
 	IP varchar(100),
 	session_id varchar(100),
-	isLoggedIn bit,
-	foreign key (username) references userdetail(username)
+	isLoggedIn bit
 );
+
+--for purchase order
+create table product_inventory 
+(
+	product_id int primary key, 
+	quantity int,
+	foreign key (product_id) references product(product_id)
+);
+
+create table purchase_order
+(
+	purchase_order_id int not null auto_increment primary key, 
+	product_id int, 
+	quantity_sold int,
+	user_id int,
+	foreign key (product_id) references product(product_id)
+);
+
+select product_id as productId, sum(quantity_sold) as quantitySold
+from purchase_order
+group by product_id
+
+--ediss.czlcqq0ph8dm.us-east-1.rds.amazonaws.com

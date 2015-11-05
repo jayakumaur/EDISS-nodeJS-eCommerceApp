@@ -16,6 +16,7 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
 
     //Users Page - Registration
     router.post("/registerUser",function(req,res){
+        console.log("-------->REGISTER!");
         var query = "INSERT INTO ??(??,??,??,??,??,??,??,??,??) VALUES (?,?,?,?,?,?,?,?,?)";
         var table = [
 	        "userdetail",
@@ -63,29 +64,47 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
         }*/
 
         else {
-	        query = mysql.format(query,table);
-	        connection.query(query,function(err,rows){
-	            if(err) {
-	                res.json({
-	                	// "Error" : true, 
-	                	"Message" : "there was a problem with your registration"
+	        var uniqueCheckQuery = "select 1 from userdetail where ((username='"+req.body.username+"' and password = '"+req.body.password+"') or (fname='"+req.body.fname+"' and lname = '"+req.body.lname+"'))";
+            // console.log(uniqueCheckQuery);
+            connection.query(uniqueCheckQuery,function(uniqueCheckErr,uniqueCheckRows){
+                if(uniqueCheckErr)
+                    res.json({
+                        // "Error" : true, 
+                        "Message" : "there was a problem with your registration"
                     });
-	            } else {
-	                res.json({
-	                	// "Error" : false, 
-	                	"Message" : "Your account has been registered"
+                else if(uniqueCheckRows.length==0){
+                    query = mysql.format(query,table);
+                    // console.log(query);
+                    connection.query(query,function(err,rows){
+                        if(err) {
+                            res.json({
+                                // "Error" : true, 
+                                "Message" : "there was a problem with your registration"
+                            });
+                        } else {
+                            res.json({
+                                // "Error" : false, 
+                                "Message" : "Your account has been registered "
+                            });
+                        }
                     });
-	            }
-	        });
+                }
+                else {
+                    res.json({
+                        "Message" : "there was a problem with your registration"
+                    });
+                } 
+            });
     	}
     });
 
 	//Login page
     router.post("/login",function(req,res){
+        console.log("-------->LOGIN!");
         username = req.body.username;
         var password = req.body.password;
         var userType = null;
-        console.log(password)
+        // console.log("password is.."+password);
         var query = "SELECT * FROM ?? WHERE ?? = ? AND ?? = ?";
         var table = [
 	        "userdetail",
@@ -116,7 +135,7 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
 	        query = mysql.format(query,table);
 
 	        connection.query(query,function(err,rows){
-	        	console.log(query);
+	        	// console.log(query);
 	            if(err) {
 	            	// console.log(query);
 	                res.json({
@@ -133,12 +152,12 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
 	                var menuMess="";
                     //req.session.username=username;
                     userType=rows[0].type;
-                    console.log(rows[0].type);
-                    console.log(rows);
+                    // console.log(rows[0].type);
+                    // console.log(rows);
                     if(userType=="customer")
-                            menuMess = "UpdateContactInformation, View Products, Logout";
+                            menuMess = "//updateInfo, //getProducts, //logout";
                     else if(userType=="admin")
-                            menuMess = "UpdateContactInformation, View Users, Modify products, View Products, Logout";
+                            menuMess = "//updateInfo, //viewUsers, //modifyProducts, //getProducts, //logout";
                     
                     //clearing previous logins of the same IP
                     var clearQuery="update session set isLoggedIn = 0 where ip ='"+req.connection.remoteAddress+"' and isLoggedIn = 1";
@@ -176,11 +195,12 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
 
     //Logout
     router.post("/logout",function(req,res){
+        console.log("-------->LOGOUT!");
         var mess;
         var ip = req.connection.remoteAddress;
         var sessionID = req.sessionID;
         var query = "select * from session where IP = '"+ip+"' and isLoggedIn = 1";
-        console.log(query);
+        // console.log(query);
         connection.query(query,function(err,rows){
             if(rows.length > 0) {
                 console.log("session exists!!!!!");
@@ -211,6 +231,7 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
     }
     //updateInfo
     router.post("/updateInfo",function(req,res){
+        console.log("-------->UPDATEINFO!");
         var pattern = new RegExp(/^[+a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/i);
         var selQuery = "select u.type,s.* from session s inner join userdetail u on s.username = u.username where s.isLoggedIn=1 and s.ip='"+req.connection.remoteAddress+"'"
         var activeUser=null;
@@ -220,11 +241,15 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
             // console.log(selRows[0].username);
             if(err)
                 console.log("Error in getting active user from DB!");
-            else {
+            else if(selRows.length==0)
+                res.json({
+                        "message":"Please log in"//+activeUser
+                    });
+            else{
                 activeUser = selRows[0].username;
                 if(activeUser == null)
                     res.json({
-                        "message":"Please log in"+activeUser
+                        "message":"Please log in"//+activeUser
                     });
                 else if(
                         (req.body.state!=null && req.body.state.length != 2) ||
@@ -259,14 +284,14 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
 
                     var query = "UPDATE userdetail set userid=userid "+querypart+" WHERE username='"+activeUser+"'";
                     connection.query(query,function(err,rows){
-                        console.log(query);
+                        // console.log(query);
                         if(err)
                             res.json({
                                 "message":"There was a problem with this action"       
                             });
                         else
                             res.json({
-                                "message":"The user information has been updated"       
+                                "message":"Your information has been updated"       
                             });
                     });
                 }
@@ -276,6 +301,7 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
 
     //modifyProduct
     router.post("/modifyProduct",function(req,res){
+        console.log("-------->MODIFYPRODUCT!");
         var mess;
                 var selQuery = "select u.type,s.* from session s inner join userdetail u on s.username = u.username where s.isLoggedIn=1 and s.ip='"+req.connection.remoteAddress+"'"
         var activeUser=null;
@@ -299,7 +325,7 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
                     else {
                         var query = "UPDATE product set title= '"+req.body.productTitle+"', description ='"+req.body.productDescription+"' WHERE product_id='"+req.body.productId+"'";
                         connection.query(query,function(err,rows){
-                            console.log(query);
+                            // console.log(query);
                             if(err)
                                 res.json({
                                     "message":"There was a problem with this action"       
@@ -319,8 +345,10 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
             }
         });
     });
-	//View users
+	
+    //View users
 	router.get("/viewUsers",function(req,res){
+        console.log("-------->VIEW USER!");
         var selQuery = "select u.type,s.* from session s inner join userdetail u on s.username = u.username where s.isLoggedIn=1 and s.ip='"+req.connection.remoteAddress+"'"
         var activeUser=null;
         // console.log(selQuery);
@@ -336,7 +364,7 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
                                 "message":"Please login!"       
                     });
                 else if(activeUser.type=="admin") {
-                    var query = "SELECT * FROM userdetail WHERE 1=1"
+                    var query = "SELECT fname, lname FROM userdetail WHERE 1=1"
                     var queryPart="";
                     if(req.query.fname!=null)
                         queryPart+=" AND fname LIKE '%"+req.query.fname+"%'";
@@ -344,7 +372,7 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
                         queryPart+=" AND lname LIKE '%"+req.query.lname+"%'";
                     query+=queryPart;
                     connection.query(query,function(err,rows){
-                    	console.log(query);
+                    	// console.log(query);
                         if(err) {
                         	// console.log(query);
                             res.json({
@@ -372,9 +400,55 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
         });
     });
 
+    //View users
+    router.get("/getOrders",function(req,res){
+        console.log("-------->GET ORDERS!");
+        var selQuery = "select u.type,s.* from session s inner join userdetail u on s.username = u.username where s.isLoggedIn=1 and s.ip='"+req.connection.remoteAddress+"'"
+        var activeUser=null;
+        // console.log(selQuery);
+        connection.query(selQuery,function(err,selRows){
+            // console.log(selRows);
+            // console.log(selRows[0].username);
+            if(err)
+                console.log("Error in getting active user from DB!");
+            else {
+                activeUser = selRows[0];
+                if(activeUser==null)
+                    res.json({
+                                "message":"Please login!"       
+                    });
+                else if(activeUser.type=="admin") {
+                    var query = "select product_id as productId, sum(quantity_sold) as quantitySold from purchase_order group by product_id";
+                    connection.query(query,function(err,rows){
+                        // console.log(query);
+                        if(err) {
+                            // console.log(query);
+                            res.json({
+                                // "Error" : true, 
+                                "errMessage" : "Database connection error!"
+                            });
+                        }
+                        else if(rows.length>0){
+                            var output = JSON.stringify(rows);
+                            res.json({
+                                "order_list":output,
+                                "message":"the request was successful"
+                            });
+                        }
+                    });
+                }
+                else if(activeUser.type=="customer")
+                    res.json({
+                        "message":"you need to log in as an admin prior to making the request"       
+                    });
+            }
+        });
+    });
+
     //View Products
 	router.get("/getProducts",function(req,res){
-    	var query = "SELECT distinct p.* FROM product p INNER JOIN product_category_mapping c ON p.product_id = c.product_id WHERE 1=1";
+        console.log("-------->GET PRODUCT!");
+    	var query = "SELECT distinct p.title FROM product p INNER JOIN product_category_mapping c ON p.product_id = c.product_id WHERE 1=1";
         var queryPart="";
         if(req.query.productId!=null)
             queryPart+=" AND p.product_id ="+req.query.productId;
@@ -403,7 +477,65 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
         });
     	// }
     });
-    
+
+    //Buy Products
+    router.post("/buyProduct",function(req,res){
+        console.log("-------->BUY PRODUCT!");
+        var mess;
+        mess = "error";
+        var ip = req.connection.remoteAddress;
+        var productId = req.body.productId;
+        var sessionID = req.sessionID;
+        var query = "select * from session where IP = '"+ip+"' and isLoggedIn = 1";
+        // console.log(query);
+        connection.query(query,function(err,rows){
+            if(rows.length > 0) {
+                console.log("session exists!!!!!");
+                /////
+                var selQuery = "select 1 from product_inventory where quantity > 0 and product_id = "+productId;
+                // console.log(selQuery);
+                connection.query(selQuery,function(selErr,selRows){
+                    if(selRows.length > 0) {
+                        console.log("product available!!");
+                        var updQuery = "update product_inventory set quantity = quantity - 1 where product_id = "+productId;
+                        //updating quanity value
+                        connection.query(updQuery,function(updErr,updRows){
+                            if(updErr) console.log("error updating quantity of product!");
+                            else { 
+                                console.log("quantity value updated!");
+                                var insQuery = "insert into purchase_order(product_id,quantity_sold,user_id) values ("+productId+",1,0)";
+                                // console.log(insQuery);
+                                //creating order entry
+                                connection.query(insQuery,function(insErr,insRows){
+                                    if(updErr) console.log("error updating quantity of product!");
+                                    else { 
+                                        console.log("order value updated!");
+                                        mess =  "the purchase has been made successfully"
+                                        res.json({
+                                            "message":mess       
+                                        });
+                                    }
+                                });        
+                            }
+                        });
+                    }
+                    else {
+                        mess = "that product is out of stock";
+                        res.json({
+                            "message":mess       
+                        });
+                    }
+                });            
+                /////
+            }
+            else {
+                mess = "You need to log in prior to buying a product";
+                res.json({
+                    "message":mess       
+                });
+            }
+        });
+    });
 }
 
 module.exports = REST_ROUTER;

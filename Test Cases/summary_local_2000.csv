@@ -1,0 +1,4 @@
+Label,# Samples,Average,Min,Max,Std. Dev.,Error %,Throughput,KB/sec,Avg. Bytes
+JDBC Query - Get product,8000,532,0,3162,665.14,0.00%,170.4,152.59,917.0
+JDBC Query - Modify Product,8000,796,23,3300,732.88,0.00%,113.5,1.00,9.0
+TOTAL,16000,664,0,3300,712.14,0.00%,226.6,102.44,463.0
