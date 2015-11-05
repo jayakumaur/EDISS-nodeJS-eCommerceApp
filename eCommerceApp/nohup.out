@@ -109,3 +109,24 @@ customer
     username: 'hsmith',
     password: 'smith',
     type: 'customer' } ]
+Sun, 04 Oct 2015 16:56:47 GMT express-session deprecated undefined resave option; provide resave option at server.js:12:9
+Sun, 04 Oct 2015 16:56:47 GMT express-session deprecated undefined saveUninitialized option; provide saveUninitialized option at server.js:12:9
+All right ! I am alive at Port 8081.
+UPDATE product set title= 'NEW PRODUCT TITLE', description ='NEW PRODUCT DESCRIPTION' WHERE product_id='2'
+admin
+SELECT * FROM `userdetail` WHERE `username` = 'jadmin' AND `password` = 'admin'
+admin
+[ { userid: null,
+    fname: 'gjgjgj',
+    lname: 'rr',
+    address: null,
+    city: null,
+    state: null,
+    zip: '12345',
+    email: null,
+    username: 'jadmin',
+    password: 'admin',
+    type: 'admin' } ]
+Previous logins cleared!!
+Session info inserted!!
+UPDATE product set title= 'NEW', description ='NEW DESCRIPTION' WHERE product_id='1'
