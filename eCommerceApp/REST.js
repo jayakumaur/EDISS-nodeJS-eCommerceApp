@@ -17,7 +17,7 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
     //Users Page - Registration
     router.post("/registerUser",function(req,res){
         console.log("-------->REGISTER!");
-        var query = "INSERT INTO ??(??,??,??,??,??,??,??,??,??) VALUES (?,?,?,?,?,?,?,?,?)";
+        var query = "INSERT INTO ??(??,??,??,??,??,??,??,??) VALUES (?,?,?,?,?,?,?,?)";
         var table = [
 	        "userdetail",
 	        "fname",
@@ -25,7 +25,6 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
 	        "address",
 	        "city",
 	        "state",
-	        "zip",
 	        "email",
 	        "username",
 	        "password",
@@ -34,20 +33,24 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
 	        req.body.address,
 	        req.body.city,
 	        req.body.state,
-	        req.body.zip,
 	        req.body.email,
 	        req.body.username,
 	        // md5(req.body.password),
 	        req.body.password
 	        // req.body.type
         ];
-        var pattern = /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/;
+        var pattern = /^[a-zA-Z_.]+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/;
         var email = req.body.email;
+        console.log(req.body.state+"----------"+req.body.email+"------");
+        console.log(pattern.test(req.body.email));
+        console.log(pattern.test("jaya.kumaur@gmail.cim.com"));
+        console.log(pattern.test("jaya.kumaur@gmail.com"));
         if(
-            (req.body.state!=null && req.body.state.length!=2) 
-            || (req.body.email!=null && (req.body.email.length = 0 || !pattern.test(req.body.email))) 
-            || (req.body.zip!=null && (req.body.zip.length!=5 || isNaN(req.body.zip)))){
-            // console.log("validation error!")
+            // (req.body.state!=null && req.body.state.length!=2) 
+            // || 
+            (req.body.email!=null && (req.body.email.length = 0 || !pattern.test(req.body.email))) 
+            ){
+            console.log("validation error!")
             // errorFlag = 1;
             res.json({
                 "Message" : "there was a problem with your registration"
@@ -65,7 +68,7 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
 
         else {
 	        var uniqueCheckQuery = "select 1 from userdetail where ((username='"+req.body.username+"' and password = '"+req.body.password+"') or (fname='"+req.body.fname+"' and lname = '"+req.body.lname+"'))";
-            // console.log(uniqueCheckQuery);
+            console.log(uniqueCheckQuery);
             connection.query(uniqueCheckQuery,function(uniqueCheckErr,uniqueCheckRows){
                 if(uniqueCheckErr)
                     res.json({
@@ -74,7 +77,7 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
                     });
                 else if(uniqueCheckRows.length==0){
                     query = mysql.format(query,table);
-                    // console.log(query);
+                    console.log(query);
                     connection.query(query,function(err,rows){
                         if(err) {
                             res.json({
@@ -252,12 +255,12 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
                         "message":"Please log in"//+activeUser
                     });
                 else if(
-                        (req.body.state!=null && req.body.state.length != 2) ||
-                        (req.body.zip!=null && (isNaN(req.body.zip) || req.body.zip.length != 5)) ||
+                        // (req.body.state!=null && req.body.state.length != 2) ||
+                        
                         (req.body.email!=null && (req.body.email.length == 0 || !pattern.test(req.body.email)))
                     ) {
                     res.json({
-                        "message":"There was a problem with this action"       
+                        "message":"123There was a problem with this action"       
                     });
                 }   
                 else if(activeUser!=null /*&& req.body.sessionID!=null && req.body.sessionID!=""*/) {
@@ -273,8 +276,8 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
                         querypart+=",city='"+req.body.city+"' "
                     if(req.body.state!=null && req.body.state.length == 2)
                         querypart+=",state='"+req.body.state+"' "
-                    if(req.body.zip!=null && req.body.zip.length == 5)
-                        querypart+=",zip='"+req.body.zip+"' "
+                    // if(req.body.zip!=null && req.body.zip.length == 5)
+                    //     querypart+=",zip='"+req.body.zip+"' "
                     if(req.body.email!=null && req.body.email.length > 0 && pattern.test(req.body.email))
                         querypart+=",email='"+req.body.email+"' "
                     if(req.body.username!=null && req.body.username.length > 0)

@@ -20,9 +20,9 @@ REST.prototype.connectMysql = function() {
     var self = this;
     var pool      =    mysql.createPool({
         connectionLimit : 100,
-        host     : 'ediss.czlcqq0ph8dm.us-east-1.rds.amazonaws.com',
+        host     : 'localhost',
         user     : 'root',
-        password : 'sairam1991',
+        password : 'sairam',
         database : 'ediss',
         debug    :  false
     });

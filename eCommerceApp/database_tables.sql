@@ -58,8 +58,9 @@ create table purchase_order
 	foreign key (product_id) references product(product_id)
 );
 
-select product_id as productId, sum(quantity_sold) as quantitySold
-from purchase_order
-group by product_id
+--population of entries in product_inventory
+insert product_inventory select product_id,2147483647 from product;
 
+--creation of fulltext index
+alter table product add fulltext(title);
 --ediss.czlcqq0ph8dm.us-east-1.rds.amazonaws.com
