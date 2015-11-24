@@ -39,12 +39,12 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
 	        req.body.password
 	        // req.body.type
         ];
-        var pattern = /^[a-zA-Z_.]+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/;
+        var pattern = /^[a-zA-Z_.]+@[a-zA-Z_.]+?\.[a-zA-Z]{2,3}$/;
         var email = req.body.email;
         console.log(req.body.state+"----------"+req.body.email+"------");
         console.log(pattern.test(req.body.email));
-        console.log(pattern.test("jaya.kumaur@gmail.cim.com"));
-        console.log(pattern.test("jaya.kumaur@gmail.com"));
+        // console.log(pattern.test("jaya.21323312@gmail.cim.com"));
+        // console.log(pattern.test("j123.1213123@gmail.com"));
         if(
             // (req.body.state!=null && req.body.state.length!=2) 
             // || 
