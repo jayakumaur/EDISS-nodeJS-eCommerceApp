@@ -4,7 +4,7 @@ function REST_ROUTER(router,connection,md5) {
     var self = this;
     self.handleRoutes(router,connection,md5);
 }
-var username;
+// var username;
 
 REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
 	var errorMess;
@@ -41,8 +41,8 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
         ];
         var pattern = /^[a-zA-Z_.]+@[a-zA-Z_.]+?\.[a-zA-Z]{2,3}$/;
         var email = req.body.email;
-        console.log(req.body.state+"----------"+req.body.email+"------");
-        console.log(pattern.test(req.body.email));
+        // console.log(req.body.state+"----------"+req.body.email+"------");
+        // console.log(pattern.test(req.body.email));
         // console.log(pattern.test("jaya.21323312@gmail.cim.com"));
         // console.log(pattern.test("j123.1213123@gmail.com"));
         if(
@@ -68,7 +68,7 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
 
         else {
 	        var uniqueCheckQuery = "select 1 from userdetail where ((username='"+req.body.username+"' and password = '"+req.body.password+"') or (fname='"+req.body.fname+"' and lname = '"+req.body.lname+"'))";
-            console.log(uniqueCheckQuery);
+            // console.log(uniqueCheckQuery);
             connection.query(uniqueCheckQuery,function(uniqueCheckErr,uniqueCheckRows){
                 if(uniqueCheckErr)
                     res.json({
@@ -77,7 +77,7 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
                     });
                 else if(uniqueCheckRows.length==0){
                     query = mysql.format(query,table);
-                    console.log(query);
+                    // console.log(query);
                     connection.query(query,function(err,rows){
                         if(err) {
                             res.json({
@@ -104,19 +104,12 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
 	//Login page
     router.post("/login",function(req,res){
         console.log("-------->LOGIN!");
-        username = req.body.username;
+        var username = req.body.username;
         var password = req.body.password;
         var userType = null;
         // console.log("password is.."+password);
-        var query = "SELECT * FROM ?? WHERE ?? = ? AND ?? = ?";
-        var table = [
-	        "userdetail",
-	        "username",
-	        username,
-	        "password",
-	        password
-        ];
-        if(username==null || password==null) { //either of the username/poassword paramters have not been sent
+        
+        if(username==null || password==null) { //either of the username/password paramters have not been sent
             console.log("Absence of login credentials!")
             res.json({
                 "errMessage" : "Provide username and password parameters!", 
@@ -135,8 +128,15 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
         else if(username.length>0 || password.length>0){ 
             
             //some paramter values have been passed for username and password
-	        query = mysql.format(query,table);
-
+            var query = "SELECT * FROM ?? WHERE ?? = ? AND ?? = ?";
+            var table = [
+                "userdetail",
+                "username",
+                username,
+                "password",
+                password
+            ];
+            query = mysql.format(query,table);
 	        connection.query(query,function(err,rows){
 	        	// console.log(query);
 	            if(err) {
@@ -199,14 +199,14 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
     //Logout
     router.post("/logout",function(req,res){
         console.log("-------->LOGOUT!");
-        var mess;
+        var mess = "You have been logged out";
         var ip = req.connection.remoteAddress;
         var sessionID = req.sessionID;
         var query = "select * from session where IP = '"+ip+"' and isLoggedIn = 1";
         // console.log(query);
         connection.query(query,function(err,rows){
             if(rows.length > 0) {
-                console.log("session exists!!!!!");
+                // console.log("session exists!!!!!");
                 mess = "You have been logged out";
                 updQuery = "update session set isLoggedIn = 0 where isLoggedIn = 1 and IP = '"+ip+"'";
                 connection.query(updQuery,function(updErr,updRows){
@@ -218,20 +218,20 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
                 // req.session.userType=null;
                 req.session.destroy();
                 res.json({
-                    "message":mess       
+                    "message":mess
                 });
             }
             else {
-                mess = "You are not currently logged in!";
+                // mess = "You are not currently logged in!";
                 res.json({
                     "message":mess       
                 });
             }
         });            
     });
-    function getActiveUser(activeUser) {
+    // function getActiveUser(activeUser) {
 
-    }
+    // }
     //updateInfo
     router.post("/updateInfo",function(req,res){
         console.log("-------->UPDATEINFO!");
@@ -244,10 +244,11 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
             // console.log(selRows[0].username);
             if(err)
                 console.log("Error in getting active user from DB!");
-            else if(selRows.length==0)
+            else if(selRows.length==0) {
                 res.json({
-                        "message":"Please log in"//+activeUser
+                        "message": "Please log in"//+activeUser
                     });
+            }
             else{
                 activeUser = selRows[0].username;
                 if(activeUser == null)
@@ -260,7 +261,7 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
                         (req.body.email!=null && (req.body.email.length == 0 || !pattern.test(req.body.email)))
                     ) {
                     res.json({
-                        "message":"123There was a problem with this action"       
+                        "message":"There was a problem with this action"       
                     });
                 }   
                 else if(activeUser!=null /*&& req.body.sessionID!=null && req.body.sessionID!=""*/) {
@@ -403,7 +404,7 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
         });
     });
 
-    //View users
+    //Get Orders
     router.get("/getOrders",function(req,res){
         console.log("-------->GET ORDERS!");
         var selQuery = "select u.type,s.* from session s inner join userdetail u on s.username = u.username where s.isLoggedIn=1 and s.ip='"+req.connection.remoteAddress+"'"
@@ -448,10 +449,11 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
         });
     });
 
-    //View Products
+    //Get Products
 	router.get("/getProducts",function(req,res){
         console.log("-------->GET PRODUCT!");
-    	var query = "SELECT distinct p.title FROM product p INNER JOIN product_category_mapping c ON p.product_id = c.product_id WHERE 1=1";
+    	// var query = "SELECT distinct p.title FROM product p INNER JOIN product_category_mapping c ON p.product_id = c.product_id WHERE 1=1";
+        var query = "SELECT distinct p.title FROM product p WHERE 1=1";
         var queryPart="";
         if(req.query.productId!=null)
             queryPart+=" AND p.product_id ="+req.query.productId;
@@ -499,20 +501,20 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
                 // console.log(selQuery);
                 connection.query(selQuery,function(selErr,selRows){
                     if(selRows.length > 0) {
-                        console.log("product available!!");
+                        // console.log("product available!!");
                         var updQuery = "update product_inventory set quantity = quantity - 1 where product_id = "+productId;
                         //updating quanity value
                         connection.query(updQuery,function(updErr,updRows){
                             if(updErr) console.log("error updating quantity of product!");
                             else { 
-                                console.log("quantity value updated!");
+                                // console.log("quantity value updated!");
                                 var insQuery = "insert into purchase_order(product_id,quantity_sold,user_id) values ("+productId+",1,0)";
                                 // console.log(insQuery);
                                 //creating order entry
                                 connection.query(insQuery,function(insErr,insRows){
                                     if(updErr) console.log("error updating quantity of product!");
                                     else { 
-                                        console.log("order value updated!");
+                                        // console.log("order value updated!");
                                         mess =  "the purchase has been made successfully"
                                         res.json({
                                             "message":mess       
