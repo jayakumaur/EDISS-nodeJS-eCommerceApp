@@ -541,6 +541,98 @@ REST_ROUTER.prototype.handleRoutes= function(router,connection,md5) {
             }
         });
     });
+
+    //Also Bought Data
+    router.post("/alsoBought",function(req,res){
+        console.log("-------->ALSOBOUGHT!");
+        var mess;
+        var selQuery = "select u.type,s.* from session s inner join userdetail u on s.username = u.username where s.isLoggedIn=1 and s.ip='"+req.connection.remoteAddress+"'"
+        var activeUser=null;
+        // console.log(selQuery);
+        connection.query(selQuery,function(err,selRows){
+            // console.log(selRows);
+            // console.log(selRows[0].username);
+            if(err)
+                console.log("Error in getting active user from DB!");
+            else {
+                activeUser = selRows[0];
+                if(activeUser==null)
+                    res.json({
+                                "message":"Please login!"       
+                    });
+                else if(activeUser.type=="admin") {
+                    if(req.body.productId1 == null || req.body.productId2 == null)
+                        res.json({
+                                "message":"Provide product parameters"       
+                        });
+                    else {
+                        var query = "INSERT INTO product_related VALUES("+req.body.productId1+","+req.body.productId2+")";
+                        connection.query(query,function(err,rows){
+                            // console.log(query);
+                            if(err)
+                                res.json({
+                                    "message":"02 there was a problem processing the request"       
+                                });
+                            else
+                                res.json({
+                                    "message":"01 the request was successful"       
+                                });
+                        });
+                    } 
+                }
+                else {
+                    res.json({
+                                "message":"Login as admin"       
+                    });
+                }
+            }
+        });
+    });
+
+    //Get Recommendations
+    router.post("/getRecommendations",function(req,res){
+        console.log("-------->GETRECCOMMENDATIONS!");
+        var mess;
+        var selQuery = "select u.type,s.* from session s inner join userdetail u on s.username = u.username where s.isLoggedIn=1 and s.ip='"+req.connection.remoteAddress+"'"
+        var activeUser=null;
+        // console.log(selQuery);
+        connection.query(selQuery,function(err,selRows){
+            // console.log(selRows);
+            // console.log(selRows[0].username);
+            if(err)
+                console.log("Error in getting active user from DB!");
+            else {
+                activeUser = selRows[0];
+                if(activeUser==null)
+                    res.json({
+                                "message":"Please login!"       
+                    });
+                else {
+                    if(req.body.productId==null)
+                        res.json({
+                                "message":"Provide product parameters"       
+                        });
+                    else {
+                        var query = "SELECT related_id from product_related where product_id = "+req.body.productId;
+                        connection.query(query,function(err,rows){
+                            // console.log(query);
+                            if(err)
+                                res.json({
+                                    "message":"02 there was a problem processing the request"       
+                                });
+                            else {
+                                var output = JSON.stringify(rows);
+                                res.json({
+                                    "message":"01 the request was successful",
+                                    "relatedProducts:" : output
+                                });
+                            }
+                        });
+                    } 
+                }
+            }
+        });
+    });
 }
 
 module.exports = REST_ROUTER;
